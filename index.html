@@ -12,7 +12,183 @@
 <img src="https://octodex.github.com/images/daftpunktocat-thomas.gif" id="octocat" alt="octocat-gif" />
 
 <!-- Change this code here by copy and pasting your template on line 15 -->
-<p>Welcome to your first GitHub Pages website!</p>
+<p><!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Схема русского научпопа</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f4f4f9;
+    }
+
+    .network-container {
+      position: relative;
+      width: 80%;
+      max-width: 1200px;
+      height: 80%;
+      overflow: hidden;
+      background-color: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    }
+
+    .node {
+      position: absolute;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background-color: #ff5722;
+      cursor: pointer;
+    }
+
+    .node-label {
+      position: absolute;
+      top: -24px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 14px;
+      color: #333;
+      white-space: nowrap;
+    }
+
+    .link {
+      position: absolute;
+      stroke: #ccc;
+      stroke-width: 2px;
+      opacity: 0.7;
+    }
+
+    .highlighted-link {
+      stroke: #ff5722;
+      stroke-width: 3px;
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="network-container"></div>
+
+<script>
+  const nodes = [
+    { id: "Сурдин", x: 500, y: 300 },
+    { id: "Панчин", x: 200, y: 100 },
+    { id: "Савватеев", x: 400, y: 100 },
+    { id: "Антропогенез.ру", x: 500, y: 150 },
+    { id: "Клим Жуков", x: 800, y: 100 },
+    { id: "Филолог Всей Руси", x: 800, y: 250 },
+    { id: "Дробышевский", x: 600, y: 250 },
+    { id: "Улица Шкловского", x: 700, y: 350 },
+    { id: "Штерн", x: 900, y: 350 },
+    { id: "Марков", x: 100, y: 250 },
+    { id: "Семихатов", x: 300, y: 300 },
+    { id: "Побединский", x: 500, y: 400 },
+    { id: "Qwerty", x: 300, y: 450 },
+    { id: "Мудреныч", x: 500, y: 500 },
+    { id: "Химия просто", x: 300, y: 550 },
+    { id: "Репич", x: 700, y: 550 },
+    { id: "Панов", x: 200, y: 350 }
+  ];
+
+  const links = [
+    { source: "Сурдин", target: "Панчин" },
+    { source: "Сурдин", target: "Савватеев" },
+    { source: "Сурдин", target: "Антропогенез.ру" },
+    { source: "Сурдин", target: "Клим Жуков" },
+    { source: "Сурдин", target: "Филолог Всей Руси" },
+    { source: "Сурдин", target: "Дробышевский" },
+    { source: "Сурдин", target: "Улица Шкловского" },
+    { source: "Сурдин", target: "Штерн" },
+    { source: "Сурдин", target: "Марков" },
+    { source: "Сурдин", target: "Семихатов" },
+    { source: "Сурдин", target: "Побединский" },
+    { source: "Сурдин", target: "Qwerty" },
+    { source: "Сурдин", target: "Мудреныч" },
+    { source: "Сурдин", target: "Химия просто" },
+    { source: "Сурдин", target: "Репич" },
+    { source: "Сурдин", target: "Панов" },
+    { source: "Панчин", target: "Савватеев" },
+    { source: "Семихатов", target: "Побединский" },
+    { source: "Побединский", target: "Мудреныч" },
+    { source: "Мудреныч", target: "Химия просто" },
+    { source: "Мудреныч", target: "Репич" }
+  ];
+
+  const container = document.querySelector(".network-container");
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", `0 0 ${container.offsetWidth} ${container.offsetHeight}`);
+  container.appendChild(svg);
+
+  // Draw links
+  links.forEach(link => {
+    const sourceNode = nodes.find(node => node.id === link.source);
+    const targetNode = nodes.find(node => node.id === link.target);
+
+    if (sourceNode && targetNode) {
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("class", "link");
+      line.setAttribute("x1", sourceNode.x);
+      line.setAttribute("y1", sourceNode.y);
+      line.setAttribute("x2", targetNode.x);
+      line.setAttribute("y2", targetNode.y);
+      svg.appendChild(line);
+    }
+  });
+
+  // Draw nodes
+  nodes.forEach(node => {
+    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    circle.setAttribute("class", "node");
+    circle.setAttribute("cx", node.x);
+    circle.setAttribute("cy", node.y);
+    circle.setAttribute("r", 16);
+    svg.appendChild(circle);
+
+    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+    label.setAttribute("class", "node-label");
+    label.setAttribute("x", node.x);
+    label.setAttribute("y", node.y - 24);
+    label.textContent = node.id;
+    svg.appendChild(label);
+  });
+
+  // Add hover effect for links
+  svg.addEventListener("mousemove", (event) => {
+    const mousePosition = {
+      x: event.clientX,
+      y: event.clientY
+    };
+
+    const highlightedLinks = Array.from(svg.querySelectorAll(".link")).filter(link => {
+      const bbox = link.getBBox();
+      return (
+        mousePosition.x >= bbox.x &&
+        mousePosition.x <= bbox.x + bbox.width &&
+        mousePosition.y >= bbox.y &&
+        mousePosition.y <= bbox.y + bbox.height
+      );
+    });
+
+    highlightedLinks.forEach(link => link.classList.add("highlighted-link"));
+    svg.querySelectorAll(".link").forEach(link => {
+      if (!highlightedLinks.includes(link)) {
+        link.classList.remove("highlighted-link");
+      }
+    });
+  });
+</script>
+
+</body>
+</html></p>
 
 </body>
 </html>
