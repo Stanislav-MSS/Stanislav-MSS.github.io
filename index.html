@@ -11,8 +11,8 @@
       --text: #333;
       --link: #ccc;
       --highlight: #ff5722;
-      --node: #ff5722;
       --shadow: rgba(0, 0, 0, 0.12);
+      --link-hover: #e64a19;
     }
 
     [data-theme="dark"] {
@@ -21,8 +21,8 @@
       --text: #e0e0e0;
       --link: #555;
       --highlight: #ff8a65;
-      --node: #ff8a65;
       --shadow: rgba(0, 0, 0, 0.3);
+      --link-hover: #ff5a4d;
     }
 
     * {
@@ -71,25 +71,6 @@
       overflow: visible;
     }
 
-    .node {
-      fill: var(--node);
-      cursor: pointer;
-      transition: fill 0.3s ease;
-    }
-
-    .node:hover {
-      fill: var(--highlight);
-    }
-
-    .node-label {
-      font-size: 14px;
-      fill: var(--text);
-      text-anchor: middle;
-      dominant-baseline: hanging;
-      pointer-events: none;
-      user-select: none;
-    }
-
     .link {
       stroke: var(--link);
       stroke-width: 2;
@@ -101,6 +82,22 @@
       stroke: var(--highlight);
       stroke-width: 3;
       opacity: 1;
+    }
+
+    .node-label {
+      font-size: 16px;
+      font-weight: 500;
+      fill: var(--text);
+      text-anchor: middle;
+      dominant-baseline: middle;
+      cursor: pointer;
+      transition: fill 0.2s ease, transform 0.2s ease;
+      user-select: none;
+    }
+
+    .node-label:hover {
+      fill: var(--highlight);
+      transform: scale(1.1);
     }
 
     .octocat {
@@ -143,7 +140,7 @@
       }
 
       .node-label {
-        font-size: 12px;
+        font-size: 14px;
       }
 
       .octocat {
@@ -175,37 +172,32 @@
     aria-hidden="true"
   />
 
-  <!-- Кнопка переключения темы -->
+  <!-- Кнопка темы -->
   <button class="theme-toggle" id="themeToggle">🌙 Тёмная тема</button>
 
   <script>
-    // === Тема: светлая/тёмная ===
-    const themeToggle = document.getElementById("themeToggle");
-    const body = document.body;
+    // === Ссылки для каждого имени (примеры) ===
+    const nodeLinks = {
+      "Сурдин": "https://www.youtube.com/user/surdin",
+      "Панчин": "https://pandorafmag.ru/author/yasha-panchin/",
+      "Савватеев": "https://www.youtube.com/c/Savvateev",
+      "Антропогенез.ру": "https://anthropogenesis.ru",
+      "Клим Жуков": "https://www.youtube.com/c/KlimZhukov",
+      "Филолог Всей Руси": "https://www.youtube.com/c/Philologist",
+      "Дробышевский": "https://www.youtube.com/user/Drobyazko",
+      "Улица Шкловского": "https://www.youtube.com/c/Shklovskogo",
+      "Штерн": "https://www.youtube.com/c/Stern",
+      "Марков": "https://www.youtube.com/c/Markov",
+      "Семихатов": "https://www.youtube.com/c/Semikhatov",
+      "Побединский": "https://www.youtube.com/c/Pobedinsky",
+      "Qwerty": "https://www.youtube.com/c/Qwerty",
+      "Мудреныч": "https://www.youtube.com/c/Mudrenych",
+      "Химия просто": "https://www.youtube.com/c/ChemistryProsto",
+      "Репич": "https://www.youtube.com/c/Repych",
+      "Панов": "https://www.youtube.com/c/Panov"
+    };
 
-    // Проверяем сохранённую тему
-    const savedTheme = localStorage.getItem("theme");
-    if (savedTheme === "dark") {
-      body.setAttribute("data-theme", "dark");
-      themeToggle.textContent = "☀️ Светлая тема";
-    }
-
-    // Переключение темы
-    themeToggle.addEventListener("click", () => {
-      const isDark = body.getAttribute("data-theme") === "dark";
-
-      if (isDark) {
-        body.removeAttribute("data-theme");
-        localStorage.setItem("theme", "light");
-        themeToggle.textContent = "🌙 Тёмная тема";
-      } else {
-        body.setAttribute("data-theme", "dark");
-        localStorage.setItem("theme", "dark");
-        themeToggle.textContent = "☀️ Светлая тема";
-      }
-    });
-
-    // === Данные графа ===
+    // === Данные узлов и связей ===
     const nodes = [
       { id: "Сурдин", x: 500, y: 300 },
       { id: "Панчин", x: 200, y: 100 },
@@ -250,6 +242,29 @@
       { source: "Мудреныч", target: "Репич" }
     ];
 
+    // === Тема: светлая/тёмная ===
+    const themeToggle = document.getElementById("themeToggle");
+    const body = document.body;
+
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      body.setAttribute("data-theme", "dark");
+      themeToggle.textContent = "☀️ Светлая тема";
+    }
+
+    themeToggle.addEventListener("click", () => {
+      const isDark = body.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        body.removeAttribute("data-theme");
+        localStorage.setItem("theme", "light");
+        themeToggle.textContent = "🌙 Тёмная тема";
+      } else {
+        body.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+        themeToggle.textContent = "☀️ Светлая тема";
+      }
+    });
+
     // === Рендер графа ===
     function renderGraph() {
       const container = document.getElementById("network");
@@ -259,6 +274,7 @@
       svg.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
       svg.innerHTML = "";
 
+      // Рисуем связи
       links.forEach(link => {
         const source = nodes.find(n => n.id === link.source);
         const target = nodes.find(n => n.id === link.target);
@@ -274,20 +290,29 @@
         }
       });
 
+      // Рисуем имена как ссылки
       nodes.forEach(node => {
-        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("class", "node");
-        circle.setAttribute("cx", node.x);
-        circle.setAttribute("cy", node.y);
-        circle.setAttribute("r", 16);
-        svg.appendChild(circle);
+        const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        text.setAttribute("class", "node-label");
+        text.setAttribute("x", node.x);
+        text.setAttribute("y", node.y);
+        text.textContent = node.id;
 
-        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-        label.setAttribute("class", "node-label");
-        label.setAttribute("x", node.x);
-        label.setAttribute("y", node.y);
-        label.textContent = node.id;
-        svg.appendChild(label);
+        // Делаем кликабельным
+        if (nodeLinks[node.id]) {
+          text.style.cursor = "pointer";
+          text.addEventListener("click", () => {
+            window.open(nodeLinks[node.id], "_blank");
+          });
+          text.addEventListener("mouseenter", () => {
+            text.setAttribute("font-weight", "bold");
+          });
+          text.addEventListener("mouseleave", () => {
+            text.setAttribute("font-weight", "500");
+          });
+        }
+
+        svg.appendChild(text);
       });
     }
 
@@ -353,6 +378,5 @@
       renderGraph();
     });
   </script>
-
 </body>
 </html>
