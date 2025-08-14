@@ -5,6 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Схема русского научпопа</title>
   <style>
+    :root {
+      --bg: #f4f4f9;
+      --container-bg: #fff;
+      --text: #333;
+      --link: #ccc;
+      --highlight: #ff5722;
+      --node: #ff5722;
+      --shadow: rgba(0, 0, 0, 0.12);
+    }
+
+    [data-theme="dark"] {
+      --bg: #121212;
+      --container-bg: #1e1e1e;
+      --text: #e0e0e0;
+      --link: #555;
+      --highlight: #ff8a65;
+      --node: #ff8a65;
+      --shadow: rgba(0, 0, 0, 0.3);
+    }
+
     * {
       margin: 0;
       padding: 0;
@@ -13,13 +33,14 @@
 
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: #f4f4f9;
-      color: #333;
+      background-color: var(--bg);
+      color: var(--text);
       display: flex;
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
       padding: 20px;
+      transition: background-color 0.3s ease;
     }
 
     header {
@@ -29,7 +50,7 @@
 
     h1 {
       font-size: 1.8rem;
-      color: #2c3e50;
+      color: var(--text);
     }
 
     .network-container {
@@ -38,9 +59,9 @@
       max-width: 1200px;
       height: 70vh;
       min-height: 500px;
-      background-color: #fff;
+      background-color: var(--container-bg);
       border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 6px 20px var(--shadow);
       overflow: hidden;
     }
 
@@ -51,18 +72,18 @@
     }
 
     .node {
-      fill: #ff5722;
+      fill: var(--node);
       cursor: pointer;
-      transition: fill 0.2s ease;
+      transition: fill 0.3s ease;
     }
 
     .node:hover {
-      fill: #e64a19;
+      fill: var(--highlight);
     }
 
     .node-label {
       font-size: 14px;
-      fill: #333;
+      fill: var(--text);
       text-anchor: middle;
       dominant-baseline: hanging;
       pointer-events: none;
@@ -70,29 +91,46 @@
     }
 
     .link {
-      stroke: #ccc;
+      stroke: var(--link);
       stroke-width: 2;
       opacity: 0.7;
-      transition: stroke 0.2s, stroke-width 0.2s;
+      transition: stroke 0.3s, stroke-width 0.3s;
     }
 
     .highlighted-link {
-      stroke: #ff5722;
+      stroke: var(--highlight);
       stroke-width: 3;
       opacity: 1;
     }
 
     .octocat {
-      position: absolute;
-      top: 20px;
-      right: 20px;
       width: 100px;
       opacity: 0.8;
       transition: opacity 0.3s;
+      margin-bottom: 10px;
     }
 
     .octocat:hover {
       opacity: 1;
+    }
+
+    .theme-toggle {
+      display: inline-block;
+      padding: 8px 16px;
+      font-size: 14px;
+      background-color: var(--container-bg);
+      color: var(--text);
+      border: 1px solid var(--link);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 6px var(--shadow);
+    }
+
+    .theme-toggle:hover {
+      background-color: var(--highlight);
+      color: white;
+      border-color: var(--highlight);
     }
 
     @media (max-width: 768px) {
@@ -107,6 +145,15 @@
       .node-label {
         font-size: 12px;
       }
+
+      .octocat {
+        width: 80px;
+      }
+
+      .theme-toggle {
+        font-size: 13px;
+        padding: 6px 12px;
+      }
     }
   </style>
 </head>
@@ -120,6 +167,7 @@
     <svg id="graph"></svg>
   </div>
 
+  <!-- Octocat -->
   <img
     src="https://octodex.github.com/images/daftpunktocat-thomas.gif"
     alt="Octocat dancing"
@@ -127,8 +175,37 @@
     aria-hidden="true"
   />
 
+  <!-- Кнопка переключения темы -->
+  <button class="theme-toggle" id="themeToggle">🌙 Тёмная тема</button>
+
   <script>
-    // === Данные ===
+    // === Тема: светлая/тёмная ===
+    const themeToggle = document.getElementById("themeToggle");
+    const body = document.body;
+
+    // Проверяем сохранённую тему
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      body.setAttribute("data-theme", "dark");
+      themeToggle.textContent = "☀️ Светлая тема";
+    }
+
+    // Переключение темы
+    themeToggle.addEventListener("click", () => {
+      const isDark = body.getAttribute("data-theme") === "dark";
+
+      if (isDark) {
+        body.removeAttribute("data-theme");
+        localStorage.setItem("theme", "light");
+        themeToggle.textContent = "🌙 Тёмная тема";
+      } else {
+        body.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+        themeToggle.textContent = "☀️ Светлая тема";
+      }
+    });
+
+    // === Данные графа ===
     const nodes = [
       { id: "Сурдин", x: 500, y: 300 },
       { id: "Панчин", x: 200, y: 100 },
@@ -179,11 +256,9 @@
       const svg = document.getElementById("graph");
       const rect = container.getBoundingClientRect();
 
-      // Обновляем размеры SVG
       svg.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
-      svg.innerHTML = ""; // Очищаем
+      svg.innerHTML = "";
 
-      // Рисуем линии
       links.forEach(link => {
         const source = nodes.find(n => n.id === link.source);
         const target = nodes.find(n => n.id === link.target);
@@ -199,7 +274,6 @@
         }
       });
 
-      // Рисуем узлы и подписи
       nodes.forEach(node => {
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         circle.setAttribute("class", "node");
@@ -228,23 +302,19 @@
         point.y = e.clientY;
         const cursorPoint = point.matrixTransform(svg.getScreenCTM().inverse());
 
-        let highlighted = [];
-
         links.forEach(link => {
           const p1 = { x: parseFloat(link.getAttribute("x1")), y: parseFloat(link.getAttribute("y1")) };
           const p2 = { x: parseFloat(link.getAttribute("x2")), y: parseFloat(link.getAttribute("y2")) };
-
           const distance = distanceToLine(cursorPoint, p1, p2);
+
           if (distance < 10) {
             link.classList.add("highlighted-link");
-            highlighted.push(link);
           } else {
             link.classList.remove("highlighted-link");
           }
         });
       });
 
-      // Простая функция для расчёта расстояния до линии
       function distanceToLine(point, p1, p2) {
         const A = point.x - p1.x;
         const B = point.y - p1.y;
@@ -253,11 +323,9 @@
 
         const dot = A * C + B * D;
         const lenSq = C * C + D * D;
-        let param = -1;
-        if (lenSq !== 0) param = dot / lenSq;
+        let param = lenSq === 0 ? -1 : dot / lenSq;
 
         let xx, yy;
-
         if (param < 0) {
           xx = p1.x;
           yy = p1.y;
@@ -281,7 +349,6 @@
       setupHover();
     });
 
-    // === Адаптация при ресайзе окна ===
     window.addEventListener("resize", () => {
       renderGraph();
     });
