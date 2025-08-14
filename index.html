@@ -1,194 +1,291 @@
 <!DOCTYPE html>
-
-<html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-  <title>my-first-website</title>
-  <LINK href="styles.css" rel="stylesheet" type="text/css">
-</head>
-
-<body>
-
-<img src="https://octodex.github.com/images/daftpunktocat-thomas.gif" id="octocat" alt="octocat-gif" />
-
-<!-- Change this code here by copy and pasting your template on line 15 -->
-<p><!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Схема русского научпопа</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    * {
       margin: 0;
       padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
       background-color: #f4f4f9;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #2c3e50;
     }
 
     .network-container {
       position: relative;
-      width: 80%;
+      width: 90%;
       max-width: 1200px;
-      height: 80%;
-      overflow: hidden;
+      height: 70vh;
+      min-height: 500px;
       background-color: #fff;
       border-radius: 16px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+    }
+
+    svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
     }
 
     .node {
-      position: absolute;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background-color: #ff5722;
+      fill: #ff5722;
       cursor: pointer;
+      transition: fill 0.2s ease;
+    }
+
+    .node:hover {
+      fill: #e64a19;
     }
 
     .node-label {
-      position: absolute;
-      top: -24px;
-      left: 50%;
-      transform: translateX(-50%);
       font-size: 14px;
-      color: #333;
-      white-space: nowrap;
+      fill: #333;
+      text-anchor: middle;
+      dominant-baseline: hanging;
+      pointer-events: none;
+      user-select: none;
     }
 
     .link {
-      position: absolute;
       stroke: #ccc;
-      stroke-width: 2px;
+      stroke-width: 2;
       opacity: 0.7;
+      transition: stroke 0.2s, stroke-width 0.2s;
     }
 
     .highlighted-link {
       stroke: #ff5722;
-      stroke-width: 3px;
+      stroke-width: 3;
       opacity: 1;
+    }
+
+    .octocat {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 100px;
+      opacity: 0.8;
+      transition: opacity 0.3s;
+    }
+
+    .octocat:hover {
+      opacity: 1;
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.4rem;
+      }
+
+      .network-container {
+        height: 60vh;
+      }
+
+      .node-label {
+        font-size: 12px;
+      }
     }
   </style>
 </head>
 <body>
 
-<div class="network-container"></div>
+  <header>
+    <h1>Схема русского научпопа</h1>
+  </header>
 
-<script>
-  const nodes = [
-    { id: "Сурдин", x: 500, y: 300 },
-    { id: "Панчин", x: 200, y: 100 },
-    { id: "Савватеев", x: 400, y: 100 },
-    { id: "Антропогенез.ру", x: 500, y: 150 },
-    { id: "Клим Жуков", x: 800, y: 100 },
-    { id: "Филолог Всей Руси", x: 800, y: 250 },
-    { id: "Дробышевский", x: 600, y: 250 },
-    { id: "Улица Шкловского", x: 700, y: 350 },
-    { id: "Штерн", x: 900, y: 350 },
-    { id: "Марков", x: 100, y: 250 },
-    { id: "Семихатов", x: 300, y: 300 },
-    { id: "Побединский", x: 500, y: 400 },
-    { id: "Qwerty", x: 300, y: 450 },
-    { id: "Мудреныч", x: 500, y: 500 },
-    { id: "Химия просто", x: 300, y: 550 },
-    { id: "Репич", x: 700, y: 550 },
-    { id: "Панов", x: 200, y: 350 }
-  ];
+  <div class="network-container" id="network">
+    <svg id="graph"></svg>
+  </div>
 
-  const links = [
-    { source: "Сурдин", target: "Панчин" },
-    { source: "Сурдин", target: "Савватеев" },
-    { source: "Сурдин", target: "Антропогенез.ру" },
-    { source: "Сурдин", target: "Клим Жуков" },
-    { source: "Сурдин", target: "Филолог Всей Руси" },
-    { source: "Сурдин", target: "Дробышевский" },
-    { source: "Сурдин", target: "Улица Шкловского" },
-    { source: "Сурдин", target: "Штерн" },
-    { source: "Сурдин", target: "Марков" },
-    { source: "Сурдин", target: "Семихатов" },
-    { source: "Сурдин", target: "Побединский" },
-    { source: "Сурдин", target: "Qwerty" },
-    { source: "Сурдин", target: "Мудреныч" },
-    { source: "Сурдин", target: "Химия просто" },
-    { source: "Сурдин", target: "Репич" },
-    { source: "Сурдин", target: "Панов" },
-    { source: "Панчин", target: "Савватеев" },
-    { source: "Семихатов", target: "Побединский" },
-    { source: "Побединский", target: "Мудреныч" },
-    { source: "Мудреныч", target: "Химия просто" },
-    { source: "Мудреныч", target: "Репич" }
-  ];
+  <img
+    src="https://octodex.github.com/images/daftpunktocat-thomas.gif"
+    alt="Octocat dancing"
+    class="octocat"
+    aria-hidden="true"
+  />
 
-  const container = document.querySelector(".network-container");
-  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  svg.setAttribute("viewBox", `0 0 ${container.offsetWidth} ${container.offsetHeight}`);
-  container.appendChild(svg);
+  <script>
+    // === Данные ===
+    const nodes = [
+      { id: "Сурдин", x: 500, y: 300 },
+      { id: "Панчин", x: 200, y: 100 },
+      { id: "Савватеев", x: 400, y: 100 },
+      { id: "Антропогенез.ру", x: 500, y: 150 },
+      { id: "Клим Жуков", x: 800, y: 100 },
+      { id: "Филолог Всей Руси", x: 800, y: 250 },
+      { id: "Дробышевский", x: 600, y: 250 },
+      { id: "Улица Шкловского", x: 700, y: 350 },
+      { id: "Штерн", x: 900, y: 350 },
+      { id: "Марков", x: 100, y: 250 },
+      { id: "Семихатов", x: 300, y: 300 },
+      { id: "Побединский", x: 500, y: 400 },
+      { id: "Qwerty", x: 300, y: 450 },
+      { id: "Мудреныч", x: 500, y: 500 },
+      { id: "Химия просто", x: 300, y: 550 },
+      { id: "Репич", x: 700, y: 550 },
+      { id: "Панов", x: 200, y: 350 }
+    ];
 
-  // Draw links
-  links.forEach(link => {
-    const sourceNode = nodes.find(node => node.id === link.source);
-    const targetNode = nodes.find(node => node.id === link.target);
+    const links = [
+      { source: "Сурдин", target: "Панчин" },
+      { source: "Сурдин", target: "Савватеев" },
+      { source: "Сурдин", target: "Антропогенез.ру" },
+      { source: "Сурдин", target: "Клим Жуков" },
+      { source: "Сурдин", target: "Филолог Всей Руси" },
+      { source: "Сурдин", target: "Дробышевский" },
+      { source: "Сурдин", target: "Улица Шкловского" },
+      { source: "Сурдин", target: "Штерн" },
+      { source: "Сурдин", target: "Марков" },
+      { source: "Сурдин", target: "Семихатов" },
+      { source: "Сурдин", target: "Побединский" },
+      { source: "Сурдин", target: "Qwerty" },
+      { source: "Сурдин", target: "Мудреныч" },
+      { source: "Сурдин", target: "Химия просто" },
+      { source: "Сурдин", target: "Репич" },
+      { source: "Сурдин", target: "Панов" },
+      { source: "Панчин", target: "Савватеев" },
+      { source: "Семихатов", target: "Побединский" },
+      { source: "Побединский", target: "Мудреныч" },
+      { source: "Мудреныч", target: "Химия просто" },
+      { source: "Мудреныч", target: "Репич" }
+    ];
 
-    if (sourceNode && targetNode) {
-      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
-      line.setAttribute("class", "link");
-      line.setAttribute("x1", sourceNode.x);
-      line.setAttribute("y1", sourceNode.y);
-      line.setAttribute("x2", targetNode.x);
-      line.setAttribute("y2", targetNode.y);
-      svg.appendChild(line);
+    // === Рендер графа ===
+    function renderGraph() {
+      const container = document.getElementById("network");
+      const svg = document.getElementById("graph");
+      const rect = container.getBoundingClientRect();
+
+      // Обновляем размеры SVG
+      svg.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
+      svg.innerHTML = ""; // Очищаем
+
+      // Рисуем линии
+      links.forEach(link => {
+        const source = nodes.find(n => n.id === link.source);
+        const target = nodes.find(n => n.id === link.target);
+
+        if (source && target) {
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("class", "link");
+          line.setAttribute("x1", source.x);
+          line.setAttribute("y1", source.y);
+          line.setAttribute("x2", target.x);
+          line.setAttribute("y2", target.y);
+          svg.appendChild(line);
+        }
+      });
+
+      // Рисуем узлы и подписи
+      nodes.forEach(node => {
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("class", "node");
+        circle.setAttribute("cx", node.x);
+        circle.setAttribute("cy", node.y);
+        circle.setAttribute("r", 16);
+        svg.appendChild(circle);
+
+        const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        label.setAttribute("class", "node-label");
+        label.setAttribute("x", node.x);
+        label.setAttribute("y", node.y);
+        label.textContent = node.id;
+        svg.appendChild(label);
+      });
     }
-  });
 
-  // Draw nodes
-  nodes.forEach(node => {
-    const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-    circle.setAttribute("class", "node");
-    circle.setAttribute("cx", node.x);
-    circle.setAttribute("cy", node.y);
-    circle.setAttribute("r", 16);
-    svg.appendChild(circle);
+    // === Подсветка линий при наведении ===
+    function setupHover() {
+      const svg = document.getElementById("graph");
+      const links = svg.querySelectorAll(".link");
 
-    const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
-    label.setAttribute("class", "node-label");
-    label.setAttribute("x", node.x);
-    label.setAttribute("y", node.y - 24);
-    label.textContent = node.id;
-    svg.appendChild(label);
-  });
+      svg.addEventListener("mousemove", (e) => {
+        const point = svg.createSVGPoint();
+        point.x = e.clientX;
+        point.y = e.clientY;
+        const cursorPoint = point.matrixTransform(svg.getScreenCTM().inverse());
 
-  // Add hover effect for links
-  svg.addEventListener("mousemove", (event) => {
-    const mousePosition = {
-      x: event.clientX,
-      y: event.clientY
-    };
+        let highlighted = [];
 
-    const highlightedLinks = Array.from(svg.querySelectorAll(".link")).filter(link => {
-      const bbox = link.getBBox();
-      return (
-        mousePosition.x >= bbox.x &&
-        mousePosition.x <= bbox.x + bbox.width &&
-        mousePosition.y >= bbox.y &&
-        mousePosition.y <= bbox.y + bbox.height
-      );
-    });
+        links.forEach(link => {
+          const p1 = { x: parseFloat(link.getAttribute("x1")), y: parseFloat(link.getAttribute("y1")) };
+          const p2 = { x: parseFloat(link.getAttribute("x2")), y: parseFloat(link.getAttribute("y2")) };
 
-    highlightedLinks.forEach(link => link.classList.add("highlighted-link"));
-    svg.querySelectorAll(".link").forEach(link => {
-      if (!highlightedLinks.includes(link)) {
-        link.classList.remove("highlighted-link");
+          const distance = distanceToLine(cursorPoint, p1, p2);
+          if (distance < 10) {
+            link.classList.add("highlighted-link");
+            highlighted.push(link);
+          } else {
+            link.classList.remove("highlighted-link");
+          }
+        });
+      });
+
+      // Простая функция для расчёта расстояния до линии
+      function distanceToLine(point, p1, p2) {
+        const A = point.x - p1.x;
+        const B = point.y - p1.y;
+        const C = p2.x - p1.x;
+        const D = p2.y - p1.y;
+
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        let param = -1;
+        if (lenSq !== 0) param = dot / lenSq;
+
+        let xx, yy;
+
+        if (param < 0) {
+          xx = p1.x;
+          yy = p1.y;
+        } else if (param > 1) {
+          xx = p2.x;
+          yy = p2.y;
+        } else {
+          xx = p1.x + param * C;
+          yy = p1.y + param * D;
+        }
+
+        const dx = point.x - xx;
+        const dy = point.y - yy;
+        return Math.sqrt(dx * dx + dy * dy);
       }
-    });
-  });
-</script>
+    }
 
-</body>
-</html></p>
+    // === Запуск ===
+    window.addEventListener("load", () => {
+      renderGraph();
+      setupHover();
+    });
+
+    // === Адаптация при ресайзе окна ===
+    window.addEventListener("resize", () => {
+      renderGraph();
+    });
+  </script>
 
 </body>
 </html>
