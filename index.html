@@ -18,7 +18,9 @@
       --link: #ccc;
       --highlight: #ff5722;
       --shadow: rgba(0, 0, 0, 0.12);
-      --link-hover: #e64a19;
+      --btn-bg: #f0f0f0;
+      --btn-hover: #e0e0e0;
+      --btn-active: #d0d0d0;
     }
 
     [data-theme="dark"] {
@@ -28,7 +30,9 @@
       --link: #555;
       --highlight: #ff8a65;
       --shadow: rgba(0, 0, 0, 0.3);
-      --link-hover: #ff5a4d;
+      --btn-bg: #2a2a2a;
+      --btn-hover: #3a3a3a;
+      --btn-active: #4a4a4a;
     }
 
     * {
@@ -38,7 +42,7 @@
     }
 
     body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       background-color: var(--bg);
       color: var(--text);
       display: flex;
@@ -91,22 +95,34 @@
       opacity: 1;
     }
 
-    .node-label {
-      font-size: 16px;
+    .node-button {
+      position: absolute;
+      background-color: var(--btn-bg);
+      color: var(--text);
+      border: 1px solid #ddd;
+      border-radius: 24px;
+      padding: 8px 16px;
+      font-size: 15px;
       font-weight: 500;
-      fill: var(--text);
-      text-anchor: middle;
-      dominant-baseline: middle;
-      cursor: pointer;
-      transition: fill 0.2s ease, transform 0.2s ease, font-weight 0.2s ease;
-      user-select: none;
       font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      white-space: nowrap;
+      user-select: none;
+      transform: translate(-50%, -50%);
     }
 
-    .node-label:hover {
-      fill: var(--highlight);
-      transform: scale(1.12);
-      font-weight: 600;
+    .node-button:hover {
+      background-color: var(--btn-hover);
+      color: var(--highlight);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+      transform: translate(-50%, -50%) scale(1.05);
+    }
+
+    .node-button:active {
+      background-color: var(--btn-active);
     }
 
     .octocat {
@@ -149,8 +165,9 @@
         height: 60vh;
       }
 
-      .node-label {
-        font-size: 14px;
+      .node-button {
+        font-size: 13px;
+        padding: 6px 12px;
       }
 
       .octocat {
@@ -165,7 +182,7 @@
   </style>
 </head>
 <body>
-  <!-- Остальной код остаётся без изменений -->
+
   <header>
     <h1>Схема русского научпопа</h1>
   </header>
@@ -174,6 +191,7 @@
     <svg id="graph"></svg>
   </div>
 
+  <!-- Octocat -->
   <img
     src="https://octodex.github.com/images/daftpunktocat-thomas.gif"
     alt="Octocat dancing"
@@ -181,11 +199,206 @@
     aria-hidden="true"
   />
 
+  <!-- Кнопка темы -->
   <button class="theme-toggle" id="themeToggle">🌙 Тёмная тема</button>
 
   <script>
-    // ... (весь JavaScript остаётся прежним)
-    // Вставь сюда весь JS из предыдущей версии
+    // === Ссылки для каждого имени ===
+    const nodeLinks = {
+      "Сурдин": "https://www.youtube.com/user/surdin",
+      "Панчин": "https://pandorafmag.ru/author/yasha-panchin/",
+      "Савватеев": "https://www.youtube.com/c/Savvateev",
+      "Антропогенез.ру": "https://anthropogenesis.ru",
+      "Клим Жуков": "https://www.youtube.com/c/KlimZhukov",
+      "Филолог Всей Руси": "https://www.youtube.com/c/Philologist",
+      "Дробышевский": "https://www.youtube.com/user/Drobyazko",
+      "Улица Шкловского": "https://www.youtube.com/c/Shklovskogo",
+      "Штерн": "https://www.youtube.com/c/Stern",
+      "Марков": "https://www.youtube.com/c/Markov",
+      "Семихатов": "https://www.youtube.com/c/Semikhatov",
+      "Побединский": "https://www.youtube.com/c/Pobedinsky",
+      "Qwerty": "https://www.youtube.com/c/Qwerty",
+      "Мудреныч": "https://www.youtube.com/c/Mudrenych",
+      "Химия просто": "https://www.youtube.com/c/ChemistryProsto",
+      "Репич": "https://www.youtube.com/c/Repych",
+      "Панов": "https://www.youtube.com/c/Panov"
+    };
+
+    // === Данные узлов и связей ===
+    const nodes = [
+      { id: "Сурдин", x: 500, y: 300 },
+      { id: "Панчин", x: 200, y: 100 },
+      { id: "Савватеев", x: 400, y: 100 },
+      { id: "Антропогенез.ру", x: 500, y: 150 },
+      { id: "Клим Жуков", x: 800, y: 100 },
+      { id: "Филолог Всей Руси", x: 800, y: 250 },
+      { id: "Дробышевский", x: 600, y: 250 },
+      { id: "Улица Шкловского", x: 700, y: 350 },
+      { id: "Штерн", x: 900, y: 350 },
+      { id: "Марков", x: 100, y: 250 },
+      { id: "Семихатов", x: 300, y: 300 },
+      { id: "Побединский", x: 500, y: 400 },
+      { id: "Qwerty", x: 300, y: 450 },
+      { id: "Мудреныч", x: 500, y: 500 },
+      { id: "Химия просто", x: 300, y: 550 },
+      { id: "Репич", x: 700, y: 550 },
+      { id: "Панов", x: 200, y: 350 }
+    ];
+
+    const links = [
+      { source: "Сурдин", target: "Панчин" },
+      { source: "Сурдин", target: "Савватеев" },
+      { source: "Сурдин", target: "Антропогенез.ру" },
+      { source: "Сурдин", target: "Клим Жуков" },
+      { source: "Сурдин", target: "Филолог Всей Руси" },
+      { source: "Сурдин", target: "Дробышевский" },
+      { source: "Сурдин", target: "Улица Шкловского" },
+      { source: "Сурдин", target: "Штерн" },
+      { source: "Сурдин", target: "Марков" },
+      { source: "Сурдин", target: "Семихатов" },
+      { source: "Сурдин", target: "Побединский" },
+      { source: "Сурдин", target: "Qwerty" },
+      { source: "Сурдин", target: "Мудреныч" },
+      { source: "Сурдин", target: "Химия просто" },
+      { source: "Сурдин", target: "Репич" },
+      { source: "Сурдин", target: "Панов" },
+      { source: "Панчин", target: "Савватеев" },
+      { source: "Семихатов", target: "Побединский" },
+      { source: "Побединский", target: "Мудреныч" },
+      { source: "Мудреныч", target: "Химия просто" },
+      { source: "Мудреныч", target: "Репич" }
+    ];
+
+    // === Тема: светлая/тёмная ===
+    const themeToggle = document.getElementById("themeToggle");
+    const body = document.body;
+
+    const savedTheme = localStorage.getItem("theme");
+    if (savedTheme === "dark") {
+      body.setAttribute("data-theme", "dark");
+      themeToggle.textContent = "☀️ Светлая тема";
+    }
+
+    themeToggle.addEventListener("click", () => {
+      const isDark = body.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        body.removeAttribute("data-theme");
+        localStorage.setItem("theme", "light");
+        themeToggle.textContent = "🌙 Тёмная тема";
+      } else {
+        body.setAttribute("data-theme", "dark");
+        localStorage.setItem("theme", "dark");
+        themeToggle.textContent = "☀️ Светлая тема";
+      }
+    });
+
+    // === Рендер графа ===
+    function renderGraph() {
+      const container = document.getElementById("network");
+      const svg = document.getElementById("graph");
+      const rect = container.getBoundingClientRect();
+
+      svg.setAttribute("viewBox", `0 0 ${rect.width} ${rect.height}`);
+      svg.innerHTML = "";
+
+      // Рисуем связи
+      links.forEach(link => {
+        const source = nodes.find(n => n.id === link.source);
+        const target = nodes.find(n => n.id === link.target);
+
+        if (source && target) {
+          const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+          line.setAttribute("class", "link");
+          line.setAttribute("x1", source.x);
+          line.setAttribute("y1", source.y);
+          line.setAttribute("x2", target.x);
+          line.setAttribute("y2", target.y);
+          svg.appendChild(line);
+        }
+      });
+
+      // Рисуем кнопки-ссылки
+      nodes.forEach(node => {
+        const button = document.createElement("div");
+        button.className = "node-button";
+        button.textContent = node.id;
+        button.style.left = `${node.x}px`;
+        button.style.top = `${node.y}px`;
+
+        if (nodeLinks[node.id]) {
+          button.addEventListener("click", () => {
+            window.open(nodeLinks[node.id], "_blank");
+          });
+        }
+
+        container.appendChild(button);
+      });
+    }
+
+    // === Подсветка линий при наведении ===
+    function setupHover() {
+      const svg = document.getElementById("graph");
+      const links = svg.querySelectorAll(".link");
+
+      svg.addEventListener("mousemove", (e) => {
+        const point = svg.createSVGPoint();
+        point.x = e.clientX;
+        point.y = e.clientY;
+        const cursorPoint = point.matrixTransform(svg.getScreenCTM().inverse());
+
+        links.forEach(link => {
+          const p1 = { x: parseFloat(link.getAttribute("x1")), y: parseFloat(link.getAttribute("y1")) };
+          const p2 = { x: parseFloat(link.getAttribute("x2")), y: parseFloat(link.getAttribute("y2")) };
+          const distance = distanceToLine(cursorPoint, p1, p2);
+
+          if (distance < 10) {
+            link.classList.add("highlighted-link");
+          } else {
+            link.classList.remove("highlighted-link");
+          }
+        });
+      });
+
+      function distanceToLine(point, p1, p2) {
+        const A = point.x - p1.x;
+        const B = point.y - p1.y;
+        const C = p2.x - p1.x;
+        const D = p2.y - p1.y;
+
+        const dot = A * C + B * D;
+        const lenSq = C * C + D * D;
+        let param = lenSq === 0 ? -1 : dot / lenSq;
+
+        let xx, yy;
+        if (param < 0) {
+          xx = p1.x;
+          yy = p1.y;
+        } else if (param > 1) {
+          xx = p2.x;
+          yy = p2.y;
+        } else {
+          xx = p1.x + param * C;
+          yy = p1.y + param * D;
+        }
+
+        const dx = point.x - xx;
+        const dy = point.y - yy;
+        return Math.sqrt(dx * dx + dy * dy);
+      }
+    }
+
+    // === Запуск ===
+    window.addEventListener("load", () => {
+      renderGraph();
+      setupHover();
+    });
+
+    window.addEventListener("resize", () => {
+      const container = document.getElementById("network");
+      container.innerHTML = '<svg id="graph"></svg>';
+      renderGraph();
+      setupHover();
+    });
   </script>
 </body>
 </html>
